@@ -1,44 +1,34 @@
-import { redirect } from "next/navigation"
-import { createClient } from "@/lib/supabase/server"
-import { ConditionsManager } from "@/components/conditions-manager"
-import { AIGreeting } from "@/components/ai-greeting"
+"use client"
 
-export default async function DashboardPage() {
-  const supabase = await createClient()
+import { useEffect, useState } from "react"
+import { generateHealthGreeting } from "@/app/actions/ai-health-actions"
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser()
+export function AIGreeting({ userName }: { userName?: string }) {
+  const [greeting, setGreeting] = useState("")
+  const [loading, setLoading] = useState(true)
 
-  if (error || !user) {
-    redirect("/auth/login")
-  }
+  useEffect(() => {
+    const fetchGreeting = async () => {
+      try {
+        setLoading(true)
+        const text = await generateHealthGreeting(userName)
+        setGreeting(text)
+      } catch (error) {
+        console.error("Error fetching greeting:", error)
+        setGreeting("Welcome to MediTrack!")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchGreeting()
+  }, [userName])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-blue-50">
-      <div className="container mx-auto p-6">
-        <header className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-teal-900">MediTrack</h1>
-              <p className="text-sm text-teal-700">Manage your health conditions and medications</p>
-            </div>
-            <form action="/auth/logout" method="post">
-              <button
-                type="submit"
-                className="rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700"
-              >
-                Logout
-              </button>
-            </form>
-          </div>
-        </header>
-
-        <AIGreeting userName={user.email?.split("@")[0]} />
-
-        <ConditionsManager userId={user.id} />
-      </div>
+    <div className="mb-6 rounded-lg bg-gradient-to-r from-teal-500 to-blue-500 p-6 text-white shadow-lg">
+      <p className="text-lg font-semibold">
+        {loading ? "Loading greeting..." : greeting}
+      </p>
     </div>
   )
 }
