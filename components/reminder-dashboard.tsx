@@ -4,9 +4,10 @@ import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Bell, BellRing, Clock, Pill, CheckCircle2 } from "lucide-react"
+import { Bell, BellRing, Clock, Pill, CheckCircle2, HelpCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
+import { MissedMedicationAdvisor } from "@/components/missed-medication-advisor"
 
 interface Medication {
   id: string
@@ -39,6 +40,12 @@ export function ReminderDashboard({ userId }: { userId: string }) {
   const [currentTime, setCurrentTime] = useState(new Date())
   const [takenMedications, setTakenMedications] = useState<Set<string>>(new Set())
   const [notifiedReminders, setNotifiedReminders] = useState<Set<string>>(new Set())
+  const [advisorOpen, setAdvisorOpen] = useState(false)
+  const [selectedMissedMed, setSelectedMissedMed] = useState<{
+    medication: Medication
+    scheduledTime: string
+    nextScheduledTime?: string
+  } | null>(null)
   const supabase = createClient()
   const { toast } = useToast()
 
@@ -187,6 +194,17 @@ export function ReminderDashboard({ userId }: { userId: string }) {
   const upcomingReminders = reminders.filter((r) => r.isUpcoming && !isTaken(r.medication.id, r.time))
   const todayReminders = reminders.filter((r) => !isTaken(r.medication.id, r.time))
   const completedToday = reminders.filter((r) => r.isPast && isTaken(r.medication.id, r.time)).length
+
+  const openMissedMedAdvisor = (medication: Medication, scheduledTime: string) => {
+    // Find next scheduled time for this medication
+    const nextTime = medication.reminder_times.find((t) => t > scheduledTime)
+    setSelectedMissedMed({
+      medication,
+      scheduledTime,
+      nextScheduledTime: nextTime,
+    })
+    setAdvisorOpen(true)
+  }
 
   if (isLoading) {
     return (
@@ -354,12 +372,22 @@ export function ReminderDashboard({ userId }: { userId: string }) {
                       >
                         {formatTime(reminder.time)}
                       </Badge>
-                      {!taken && (
+                      {!taken && reminder.isPast && (
                         <Button
                           size="sm"
-                          variant={reminder.isPast ? "outline" : "default"}
+                          variant="outline"
+                          onClick={() => openMissedMedAdvisor(reminder.medication, reminder.time)}
+                          className="border-amber-300 text-amber-700 hover:bg-amber-50"
+                        >
+                          <HelpCircle className="mr-1 h-4 w-4" />
+                          Get Advice
+                        </Button>
+                      )}
+                      {!taken && !reminder.isPast && (
+                        <Button
+                          size="sm"
                           onClick={() => markAsTaken(reminder.medication.id, reminder.time)}
-                          className={reminder.isPast ? "" : "bg-teal-600 hover:bg-teal-700"}
+                          className="bg-teal-600 hover:bg-teal-700"
                         >
                           Mark Taken
                         </Button>
@@ -377,6 +405,22 @@ export function ReminderDashboard({ userId }: { userId: string }) {
           )}
         </CardContent>
       </Card>
+
+      {/* Missed Medication Advisor Dialog */}
+      {selectedMissedMed && (
+        <MissedMedicationAdvisor
+          open={advisorOpen}
+          onOpenChange={setAdvisorOpen}
+          medicationName={selectedMissedMed.medication.name}
+          dosage={selectedMissedMed.medication.dosage}
+          scheduledTime={selectedMissedMed.scheduledTime}
+          nextScheduledTime={selectedMissedMed.nextScheduledTime}
+          onMarkTaken={() => {
+            markAsTaken(selectedMissedMed.medication.id, selectedMissedMed.scheduledTime)
+            setAdvisorOpen(false)
+          }}
+        />
+      )}
     </div>
   )
 }

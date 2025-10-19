@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { ConditionsManager } from "@/components/conditions-manager"
+import { AIGreeting } from "@/components/ai-greeting"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -33,6 +34,8 @@ export default async function DashboardPage() {
             </form>
           </div>
         </header>
+
+        <AIGreeting userName={user.email?.split("@")[0]} />
 
         <ConditionsManager userId={user.id} />
       </div>

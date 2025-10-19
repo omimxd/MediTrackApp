@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Plus, Trash2, ArrowUpDown, FileText, Bell } from "lucide-react"
+import { Plus, Trash2, ArrowUpDown, FileText, Bell, Brain, Stethoscope, Shield, BarChart3 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
@@ -213,6 +213,46 @@ export function ConditionsManager({ userId }: { userId: string }) {
               </Button>
             </div>
           )}
+          <Button
+            asChild
+            variant="outline"
+            className="w-full border-indigo-200 bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 hover:from-indigo-100 hover:to-purple-100"
+          >
+            <Link href="/dashboard/health-summary">
+              <BarChart3 className="mr-2 h-4 w-4" />
+              Health Summary Reports
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            className="w-full border-red-200 bg-gradient-to-r from-red-50 to-orange-50 text-red-700 hover:from-red-100 hover:to-orange-100"
+          >
+            <Link href="/dashboard/drug-interactions">
+              <Shield className="mr-2 h-4 w-4" />
+              Drug Interaction Checker
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            className="w-full border-pink-200 bg-gradient-to-r from-pink-50 to-purple-50 text-pink-700 hover:from-pink-100 hover:to-purple-100"
+          >
+            <Link href="/dashboard/symptom-checker">
+              <Stethoscope className="mr-2 h-4 w-4" />
+              AI Symptom Checker
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            className="w-full border-purple-200 bg-gradient-to-r from-purple-50 to-blue-50 text-purple-700 hover:from-purple-100 hover:to-blue-100"
+          >
+            <Link href="/dashboard/insights">
+              <Brain className="mr-2 h-4 w-4" />
+              AI Health Insights
+            </Link>
+          </Button>
           <Button
             asChild
             variant="outline"
