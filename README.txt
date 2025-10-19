@@ -5,7 +5,7 @@ MediTrack is a comprehensive web-based health management application that helps 
 
 NOTE:
 use username: omarionorman@gmail.com
-password: Norm_0422
+password: Norm0422
 
 
 Core Features:
