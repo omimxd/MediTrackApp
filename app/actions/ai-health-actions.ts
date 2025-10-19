@@ -11,7 +11,7 @@ export async function generateHealthGreeting(userName?: string) {
     model: google("gemini-2.0-flash"),
     prompt: `Generate a short, cheerful, slightly humorous greeting for someone who is managing their health and medications. 
     ${userName ? `Their name is ${userName}.` : ""} 
-    Include a light joke or pun about staying healthy appropriate and uplifting. 
+    Include a light joke or pun about staying healthy (like "Hey sick shyt" but more appropriate and uplifting). 
     Keep it under 50 words and make it encouraging.`,
     maxOutputTokens: 100,
   })
