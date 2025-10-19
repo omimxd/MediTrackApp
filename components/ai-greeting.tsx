@@ -15,7 +15,7 @@ export function AIGreeting({ userName }: { userName?: string }) {
         setGreeting(message)
       } catch (error) {
         console.error("[v0] Failed to generate greeting:", error)
-        setGreeting("Hey sick shyt")
+        setGreeting("Welcome back! Ready to stay on top of your health today?")
       } finally {
         setLoading(false)
       }
