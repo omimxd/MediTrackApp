@@ -40,7 +40,7 @@ export async function analyzeHealthLogs(userId: string) {
     .from("health_logs")
     .select("*")
     .eq("user_id", userId)
-    .order("date", { ascending: false })
+    .order("log_date", { ascending: false })
     .limit(30)
 
   if (!logs || logs.length === 0) {
@@ -50,8 +50,7 @@ export async function analyzeHealthLogs(userId: string) {
     }
   }
 
-  const logsText = logs.map((log) => `${log.date}: ${log.notes}`).join("\n")
-
+  const logsText = logs.map((log) => `${log.log_date}: ${log.notes}`).join("\n")
   const { object } = await generateObject({
     model: google("gemini-2.0-flash"),
     schema: healthInsightSchema,
@@ -213,14 +212,14 @@ export async function generateHealthSummary(userId: string, period: "week" | "mo
     .from("health_logs")
     .select("*")
     .eq("user_id", userId)
-    .gte("date", startDate.toISOString().split("T")[0])
-    .order("date", { ascending: false })
+    .gte("log_date", startDate.toISOString().split("T")[0])
+    .order("log_date", { ascending: false })
 
   // Fetch medications
   const { data: conditions } = await supabase.from("conditions").select("*, medications(*)").eq("user_id", userId)
 
-  const logsText = logs?.map((log) => `${log.date}: ${log.notes}`).join("\n") || "No logs"
-  const medsText =
+    const logsText = logs?.map((log) => `${log.log_date}: ${log.notes}`).join("\n")    
+    const medsText =
     conditions?.flatMap((c) => c.medications?.map((m: any) => `${m.name} (${m.dosage})`) || []).join(", ") ||
     "No medications"
 

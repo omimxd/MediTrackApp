@@ -21,14 +21,26 @@ type HealthInsights = {
 export function HealthInsightsAnalyzer({ userId }: { userId: string }) {
   const [insights, setInsights] = useState<HealthInsights | null>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function analyzeHealth() {
     setLoading(true)
+    setError(null)
     try {
+      console.log("Starting health analysis for userId:", userId)
       const result = await analyzeHealthLogs(userId)
+      console.log("Analysis result:", result)
+      
+      if (!result || !result.insights) {
+        setError("No insights generated. Make sure you have health logs to analyze.")
+        return
+      }
+      
       setInsights(result)
     } catch (error) {
-      console.error("[v0] Failed to analyze health logs:", error)
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      console.error("Failed to analyze health logs:", errorMessage)
+      setError(`Error analyzing health logs: ${errorMessage}`)
     } finally {
       setLoading(false)
     }
@@ -66,6 +78,16 @@ export function HealthInsightsAnalyzer({ userId }: { userId: string }) {
     )
   }
 
+  if (error) {
+    return (
+      <Card className="border-red-200 bg-red-50 p-8 text-center">
+        <AlertTriangle className="mx-auto mb-4 h-12 w-12 text-red-600" />
+        <p className="mb-4 text-red-800">{error}</p>
+        <Button onClick={analyzeHealth}>Try Again</Button>
+      </Card>
+    )
+  }
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
@@ -75,7 +97,7 @@ export function HealthInsightsAnalyzer({ userId }: { userId: string }) {
     )
   }
 
-  if (!insights) {
+  if (!insights || insights.insights.length === 0) {
     return (
       <Card className="p-8 text-center">
         <Brain className="mx-auto mb-4 h-12 w-12 text-gray-400" />
